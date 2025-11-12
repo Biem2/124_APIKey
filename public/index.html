@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Key Generator</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #3a8ef6, #6f3af6);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      margin: 0;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 30px 40px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 1.6em;
+    }
+
+    .key-box {
+      background: #fff;
+      color: #333;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 1em;
+      margin-bottom: 20px;
+      word-break: break-all;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: 0.3s;
+    }
+
+    .generate-btn { background-color: #00d084; color: white; }
+    .verify-btn { background-color: #007bff; color: white; }
+
+    button:hover { opacity: 0.9; transform: scale(1.05); }
+
+    #result {
+      margin-top: 10px;
+      font-size: 1em;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>API Key Generator</h1>
+    <div id="apiKey" class="key-box">Klik "Generate" untuk membuat API Key</div>
+    <div class="buttons">
+      <button class="generate-btn" onclick="generateKey()">Generate</button>
+      <button class="verify-btn" onclick="verifyKey()">Verify</button>
+    </div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const serverURL = "http://localhost:3000";
+
+    // 🔹 Ambil token dari backend (via GET /generate)
+    function generateKey() {
+      fetch(`${serverURL}/generate`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('apiKey').innerText = data.token;
+          document.getElementById('result').innerText = data.message;
+        })
+        .catch(err => console.error(err));
+    }
+
+    // 🔹 Kirim token ke backend untuk verifikasi
+    function verifyKey() {
+      const token = document.getElementById('apiKey').innerText;
+      if (!token || token.includes("Klik")) {
+        return alert("Generate token dulu!");
+      }
+
+      fetch(`${serverURL}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('result').innerText = data.message;
+        })
+        .catch(err => console.error(err));
+    }
+  </script>
+</body>
+</html>
